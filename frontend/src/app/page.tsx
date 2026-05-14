@@ -2,15 +2,29 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ApplicationRow, FilterBar, JobCard, PaginationControls } from "@/components";
-import { fetchApplicationStatusTransitions, fetchApplications, fetchJobs } from "@/lib/api";
+import { ApplicationRow, FilterBar, JobAnalyticsStats, JobCard, PaginationControls } from "@/components";
+import {
+  fetchApplicationStatusTransitions,
+  fetchApplications,
+  fetchJobs,
+  fetchStats,
+} from "@/lib/api";
 import type { ApplicationResponse } from "@/types/application";
+import type { StatsResponse } from "@/types/stats";
 import type { JobResponse } from "@/types/job";
 
 const JOBS_PER_PAGE = 6;
 const APPLICATIONS_PER_PAGE = 10;
 
-type HomeTab = "jobs" | "applications";
+type HomeTab = "jobs" | "applications" | "analytics";
+
+const TAB_INTRO: Record<HomeTab, string> = {
+  jobs: "Jobs are loaded from `/api/jobs` with filters and pagination.",
+  applications:
+    "Applications are loaded from `/api/applications` with pagination. Update pipeline status from each row when rules load.",
+  analytics:
+    "Live platform metrics from `GET /api/stats`: listings, application volume, averages, and the busiest department by application count.",
+};
 
 function getStatus(isClosed: boolean, deadline: string) {
   const deadlineDate = new Date(deadline);
@@ -39,6 +53,11 @@ export default function Home() {
   const [statusTransitions, setStatusTransitions] = useState<Record<string, string[]>>({});
   const [transitionsLoading, setTransitionsLoading] = useState(false);
   const [transitionsError, setTransitionsError] = useState<string | null>(null);
+
+  const [stats, setStats] = useState<StatsResponse | null>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [statsRefreshing, setStatsRefreshing] = useState(false);
+  const [statsError, setStatsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (activeTab !== "jobs") return;
@@ -127,6 +146,42 @@ export default function Home() {
     };
   }, [activeTab]);
 
+  useEffect(() => {
+    if (activeTab !== "analytics") return;
+
+    let isMounted = true;
+    setStatsLoading(true);
+    setStatsError(null);
+
+    fetchStats()
+      .then((data) => {
+        if (isMounted) setStats(data);
+      })
+      .catch((err) => {
+        if (isMounted) {
+          setStatsError(err instanceof Error ? err.message : "Unable to load analytics.");
+        }
+      })
+      .finally(() => {
+        if (isMounted) setStatsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeTab]);
+
+  function refreshStats() {
+    setStatsRefreshing(true);
+    setStatsError(null);
+    fetchStats()
+      .then(setStats)
+      .catch((err) => {
+        setStatsError(err instanceof Error ? err.message : "Unable to load analytics.");
+      })
+      .finally(() => setStatsRefreshing(false));
+  }
+
   function handleApplicationUpdated(updated: ApplicationResponse) {
     setApplications((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
   }
@@ -139,7 +194,7 @@ export default function Home() {
 
   const tabButtonClass = (tab: HomeTab) =>
     [
-      "inline-flex h-10 flex-1 items-center justify-center rounded-xl px-4 text-sm font-semibold transition sm:flex-none sm:px-8",
+      "inline-flex h-10 flex-1 items-center justify-center rounded-xl px-3 text-sm font-semibold transition sm:flex-none sm:px-5",
       activeTab === tab
         ? "bg-white text-zinc-950 shadow-sm dark:bg-zinc-800 dark:text-zinc-50"
         : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100",
@@ -158,11 +213,7 @@ export default function Home() {
                 <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
                   Browse jobs from the backend
                 </h1>
-                <p className="max-w-3xl text-sm leading-7 text-zinc-600 dark:text-zinc-300">
-                  {activeTab === "jobs"
-                    ? "Jobs are loaded from `/api/jobs` with filters and pagination. Switch to Applications to review submissions from `/api/applications`."
-                    : "Applications are loaded from `/api/applications` with pagination. Open a job from the Jobs tab to see full listing details."}
-                </p>
+                <p className="max-w-3xl text-sm leading-7 text-zinc-600 dark:text-zinc-300">{TAB_INTRO[activeTab]}</p>
               </div>
               <Link
                 href="/job/create"
@@ -175,7 +226,7 @@ export default function Home() {
             <div
               role="tablist"
               aria-label="Home sections"
-              className="flex w-full max-w-md gap-1 rounded-2xl border border-zinc-200 bg-zinc-100/90 p-1 dark:border-zinc-700 dark:bg-zinc-900/60"
+              className="flex w-full max-w-2xl flex-wrap gap-1 rounded-2xl border border-zinc-200 bg-zinc-100/90 p-1 dark:border-zinc-700 dark:bg-zinc-900/60"
             >
               <button
                 type="button"
@@ -194,6 +245,15 @@ export default function Home() {
                 onClick={() => setActiveTab("applications")}
               >
                 Applications
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === "analytics"}
+                className={tabButtonClass("analytics")}
+                onClick={() => setActiveTab("analytics")}
+              >
+                Analytics
               </button>
             </div>
           </div>
@@ -292,6 +352,16 @@ export default function Home() {
               </>
             )}
           </section>
+        )}
+
+        {activeTab === "analytics" && (
+          <JobAnalyticsStats
+            stats={stats}
+            statsLoading={statsLoading}
+            statsRefreshing={statsRefreshing}
+            error={statsError}
+            onRefresh={refreshStats}
+          />
         )}
 
         {activeTab === "jobs" && (

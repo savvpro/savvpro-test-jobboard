@@ -4,3 +4,4 @@ export { default as PaginationControls } from "./PaginationControls";
 export { default as FilterBar } from "./FilterBar";
 export { default as JobCreateForm } from "./JobCreateForm";
 export { default as ApplicationRow } from "./ApplicationRow";
+export { default as JobAnalyticsStats } from "./JobAnalyticsStats";
