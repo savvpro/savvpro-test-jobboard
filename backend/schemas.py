@@ -99,10 +99,10 @@ class ApplicationCreate(BaseModel):
 
 
 class StatusHistoryEntry(BaseModel):
-    id: int
-    status: str
+    from_status: Optional[str]
+    to_status: str
     note: str
-    created_at: datetime
+    changed_at: datetime
 
     model_config = {"from_attributes": True}
 
@@ -123,7 +123,7 @@ class ApplicationResponse(BaseModel):
 
 
 class StatusUpdateRequest(BaseModel):
-    status: str
+    new_status: str
     note: str
 
     @field_validator("note")

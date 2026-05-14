@@ -50,7 +50,7 @@ class Application(Base):
         "StatusHistory",
         back_populates="application",
         cascade="all, delete-orphan",
-        order_by="StatusHistory.created_at",
+        order_by="StatusHistory.changed_at",
     )
 
 
@@ -59,8 +59,9 @@ class StatusHistory(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     application_id = Column(Integer, ForeignKey("applications.id"), nullable=False)
-    status = Column(String, nullable=False)
+    from_status = Column(String, nullable=True)
+    to_status = Column(String, nullable=False)
     note = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    changed_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     application = relationship("Application", back_populates="status_history")

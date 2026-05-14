@@ -6,10 +6,9 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
 from models import Application, Job, StatusHistory
-from schemas import ApplicationCreate, ApplicationResponse, StatusUpdateRequest
+from schemas import ApplicationCreate, StatusUpdateRequest
 
-# Valid forward transitions
-VALID_TRANSITIONS: dict[str, list[str]] = {
+TRANSITIONS: dict[str, list[str]] = {
     "pending": ["shortlisted", "rejected"],
     "shortlisted": ["offered", "rejected"],
     "offered": ["rejected"],
@@ -21,40 +20,34 @@ def submit_application(db: Session, job_id: int, data: ApplicationCreate) -> App
     job = db.query(Job).filter(Job.id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
+
     if job.is_closed:
-        raise HTTPException(status_code=400, detail="Job listing is closed")
+        raise HTTPException(status_code=409, detail="Job listing is closed")
+
     if job.deadline < date.today():
-        raise HTTPException(status_code=400, detail="Job listing deadline has passed")
-
-    # Check max_applicants cap
-    if job.max_applicants is not None:
-        active_count = (
-            db.query(Application)
-            .filter(
-                Application.job_id == job_id,
-                Application.current_status != "rejected",
-            )
-            .count()
+        raise HTTPException(
+            status_code=409,
+            detail=f"Job application deadline has passed ({job.deadline})",
         )
-        if active_count >= job.max_applicants:
-            raise HTTPException(status_code=400, detail="Job listing has reached the maximum number of applicants")
 
-    # Duplicate check: same email + same job — block if any non-rejected application exists
+    if job.max_applicants is not None:
+        count = db.query(Application).filter(Application.job_id == job_id).count()
+        if count >= job.max_applicants:
+            raise HTTPException(
+                status_code=409,
+                detail="Job listing has reached the maximum number of applicants",
+            )
+
     existing = (
         db.query(Application)
-        .filter(
-            Application.job_id == job_id,
-            Application.email == data.email,
-        )
+        .filter(Application.job_id == job_id, Application.email == data.email)
         .first()
     )
     if existing:
-        if existing.current_status != "rejected":
-            raise HTTPException(
-                status_code=409,
-                detail="An active application from this email already exists for this job",
-            )
-        # Previous application was rejected — allow reapplication by creating a new record
+        raise HTTPException(
+            status_code=409,
+            detail="An application from this email already exists for this job",
+        )
 
     app = Application(
         job_id=job_id,
@@ -68,12 +61,12 @@ def submit_application(db: Session, job_id: int, data: ApplicationCreate) -> App
     db.add(app)
     db.flush()
 
-    initial_history = StatusHistory(
+    db.add(StatusHistory(
         application_id=app.id,
-        status="pending",
+        from_status=None,
+        to_status="pending",
         note="Application submitted",
-    )
-    db.add(initial_history)
+    ))
     db.commit()
     db.refresh(app)
     return app
@@ -100,21 +93,21 @@ def get_application(db: Session, application_id: int) -> Application:
 def update_status(db: Session, application_id: int, data: StatusUpdateRequest) -> Application:
     app = get_application(db, application_id)
 
-    allowed = VALID_TRANSITIONS.get(app.current_status, [])
-    if data.status not in allowed:
+    allowed = TRANSITIONS.get(app.current_status, [])
+    if data.new_status not in allowed:
         raise HTTPException(
-            status_code=400,
-            detail=f"Cannot transition from '{app.current_status}' to '{data.status}'. "
-                   f"Allowed transitions: {allowed}",
+            status_code=422,
+            detail=f"Cannot transition from {app.current_status} to {data.new_status}",
         )
 
-    app.current_status = data.status
-    history = StatusHistory(
+    prev_status = app.current_status
+    app.current_status = data.new_status
+    db.add(StatusHistory(
         application_id=app.id,
-        status=data.status,
+        from_status=prev_status,
+        to_status=data.new_status,
         note=data.note,
-    )
-    db.add(history)
+    ))
     db.commit()
     db.refresh(app)
     return app

@@ -82,13 +82,14 @@ def close_job(db: Session, job_id: int) -> Job:
         .all()
     )
     for app in pending_apps:
+        prev = app.current_status
         app.current_status = "rejected"
-        history = StatusHistory(
+        db.add(StatusHistory(
             application_id=app.id,
-            status="rejected",
+            from_status=prev,
+            to_status="rejected",
             note="Job listing closed by hiring manager.",
-        )
-        db.add(history)
+        ))
 
     db.commit()
     db.refresh(job)

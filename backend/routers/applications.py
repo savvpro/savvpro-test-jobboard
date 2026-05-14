@@ -10,11 +10,11 @@ router = APIRouter(prefix="/api", tags=["applications"])
 
 
 @router.post(
-    "/jobs/{job_id}/applications",
+    "/jobs/{job_id}/apply",
     response_model=ApplicationResponse,
     status_code=status.HTTP_201_CREATED,
 )
-def submit_application(job_id: int, data: ApplicationCreate, db: Session = Depends(get_db)):
+def apply_to_job(job_id: int, data: ApplicationCreate, db: Session = Depends(get_db)):
     return application_service.submit_application(db, job_id, data)
 
 
@@ -32,10 +32,10 @@ def get_application(application_id: int, db: Session = Depends(get_db)):
     return application_service.get_application(db, application_id)
 
 
-@router.patch("/applications/{application_id}/status", response_model=ApplicationResponse)
+@router.patch("/applications/{app_id}/status", response_model=ApplicationResponse)
 def update_status(
-    application_id: int,
+    app_id: int,
     data: StatusUpdateRequest,
     db: Session = Depends(get_db),
 ):
-    return application_service.update_status(db, application_id, data)
+    return application_service.update_status(db, app_id, data)
