@@ -1,83 +1,105 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# JobBoard Pro — Job Listings, Applications & Status Workflow
 
-**Repository:** https://github.com/savvpro/savvpro-test-jobboard
-
----
-
-## Step 1: Fork the Repository
-
-1. Go to the repository: https://github.com/savvpro/savvpro-test-jobboard
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+A full-stack internal hiring platform built with **FastAPI** (Python) and **Next.js** (React).
 
 ---
 
-## Step 2: Clone Your Fork
+## Quick Start
 
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
+### Prerequisites
+
+- Python 3.10+
+- Node.js 18+
+- npm
+
+### Backend Setup
 
 ```bash
-git clone https://github.com/your-username/savvpro-test-jobboard.git
-cd savvpro-test-jobboard
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+Backend runs at **http://localhost:8000**. API docs available at **http://localhost:8000/docs**.
+
+### Frontend Setup
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend runs at **http://localhost:3000**.
+
+### Running Tests
+
+```bash
+# From the project root
+pip install pytest httpx
+python -m pytest tests/test_api.py -v
 ```
 
 ---
 
-## Step 3: Read the Task
+## Project Structure
 
-Open and read **TASK.md** carefully before writing any code.
-
-- TASK.md URL: https://github.com/savvpro/savvpro-test-jobboard/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
-
-```bash
-git checkout -b candidate-<your-github-username>
 ```
-
-**Example:**
-```bash
-git checkout -b candidate-johndoe
-```
-
----
-
-## Step 5: Complete the Task
-
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
-
-```bash
-git add .
-git commit -m "feat: complete JobBoard assessment"
-git push origin candidate-<your-github-username>
+├── backend/               # FastAPI backend
+│   ├── main.py            # API endpoints (all 6 features)
+│   ├── models.py          # SQLAlchemy ORM models
+│   ├── schemas.py         # Pydantic request/response schemas
+│   ├── database.py        # Database configuration
+│   └── requirements.txt   # Python dependencies
+├── frontend/              # Next.js frontend
+│   ├── app/               # App Router pages and global layout
+│   │   ├── page.js        # Home — job listings, filters, pagination
+│   │   ├── layout.js      # Root shell and top navigation
+│   │   ├── dashboard/     # Analytics dashboard
+│   │   ├── post-job/      # Create job form
+│   │   └── jobs/[id]/     # Job detail & applications pipeline
+│   ├── components/        # Reusable components
+│   │   ├── JobCard.js
+│   │   ├── ApplicationRow.js
+│   │   ├── StatusBadge.js
+│   │   └── PaginationControls.js
+│   └── lib/api.js         # API client
+├── tests/                 # Test suite (11 tests)
+│   └── test_api.py
+├── ARCHITECTURE.md        # Data model & API design
+├── AI_USAGE.md            # AI tool usage documentation
+├── USER_GUIDE.md          # How to use the app
+├── TASK.md                # Original assessment brief
+└── .gitignore
 ```
 
 ---
 
-## Step 7: Create a Pull Request
+## Tech Stack
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-jobboard`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-jobboard` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-jobboard` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete JobBoard assessment`
-5. Submit the pull request.
-
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-jobboard`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+- **Backend:** Python 3.10+, FastAPI, SQLAlchemy, SQLite, Pydantic
+- **Frontend:** Next.js 15, React 19, Tailwind CSS
+- **Testing:** pytest, FastAPI TestClient
 
 ---
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+## Features
+
+1. **Post a Job** — Create listings with title, department, salary, skills, deadline
+2. **Browse & Search** — Filter by department, location, skill with pagination
+3. **Apply** — Submit applications with email validation and duplicate detection
+4. **Status Workflow** — pending → shortlisted → offered (with reject from any state)
+5. **Analytics Dashboard** — Live computed stats from the database
+6. **Close Jobs** — Manual close with auto-reject of pending applications
+
+---
+
+## Assumptions & Design Decisions
+
+- **No authentication** — Trust-based system as specified in the brief
+- **Duplicate applications blocked permanently** — Same email cannot apply twice to the same job
+- **Auto-reject on close** — Pending applications are auto-rejected when a job is closed; shortlisted/offered are preserved
+- **max_applicants cap** — Job stays "open" but stops accepting when cap is reached
+- **SQLite** — Single-file database, no external services needed
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for full details.
