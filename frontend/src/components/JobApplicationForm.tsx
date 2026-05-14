@@ -1,8 +1,10 @@
 import { useState } from "react";
 import type { ApplicationCreateRequest } from "@/types/application";
 import { ApiRequestError } from "@/lib/apiErrors";
+import { applicationExistsForJob } from "@/lib/api";
 
 interface JobApplicationFormProps {
+  jobId: number;
   jobTitle: string;
   onSubmit: (applicationData: ApplicationCreateRequest) => Promise<void>;
   loading: boolean;
@@ -12,6 +14,7 @@ interface JobApplicationFormProps {
 type FieldKey = keyof ApplicationCreateRequest;
 
 export default function JobApplicationForm({
+  jobId,
   jobTitle,
   onSubmit,
   loading,
@@ -28,6 +31,7 @@ export default function JobApplicationForm({
   const [clientFieldErrors, setClientFieldErrors] = useState<Partial<Record<FieldKey, string>>>({});
   const [apiFieldErrors, setApiFieldErrors] = useState<Partial<Record<string, string>>>({});
   const [serverMessage, setServerMessage] = useState<string | null>(null);
+  const [duplicateCheckLoading, setDuplicateCheckLoading] = useState(false);
 
   const clearErrors = () => {
     setClientFieldErrors({});
@@ -72,8 +76,36 @@ export default function JobApplicationForm({
       return;
     }
 
+    const emailNormalized = formData.email.trim().toLowerCase();
+    setDuplicateCheckLoading(true);
     try {
-      await onSubmit(formData);
+      const alreadyApplied = await applicationExistsForJob(jobId, emailNormalized);
+      if (alreadyApplied) {
+        setClientFieldErrors({
+          email:
+            "This email has already been used to apply to this job. Each address can only apply once per listing.",
+        });
+        return;
+      }
+    } catch (err) {
+      setServerMessage(
+        err instanceof Error ? err.message : "Unable to verify whether this email has already applied."
+      );
+      return;
+    } finally {
+      setDuplicateCheckLoading(false);
+    }
+
+    const payload: ApplicationCreateRequest = {
+      ...formData,
+      applicant_name: formData.applicant_name.trim(),
+      email: emailNormalized,
+      cv_summary: formData.cv_summary.trim(),
+      linkedin_url: formData.linkedin_url?.trim() || null,
+    };
+
+    try {
+      await onSubmit(payload);
     } catch (err) {
       if (err instanceof ApiRequestError) {
         setServerMessage(err.message);
@@ -254,10 +286,10 @@ export default function JobApplicationForm({
         </button>
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || duplicateCheckLoading}
           className="inline-flex h-12 items-center justify-center rounded-2xl bg-slate-950 px-6 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-50 hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-zinc-200"
         >
-          {loading ? "Submitting..." : "Submit Application"}
+          {duplicateCheckLoading ? "Checking…" : loading ? "Submitting..." : "Submit Application"}
         </button>
       </div>
     </form>

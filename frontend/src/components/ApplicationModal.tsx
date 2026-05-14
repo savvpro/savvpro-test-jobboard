@@ -4,6 +4,7 @@ import type { ApplicationCreateRequest } from "@/types/application";
 
 interface ApplicationModalProps {
   isOpen: boolean;
+  jobId: number;
   jobTitle: string;
   onSubmit: (applicationData: ApplicationCreateRequest) => Promise<void>;
   loading: boolean;
@@ -12,6 +13,7 @@ interface ApplicationModalProps {
 
 export default function ApplicationModal({
   isOpen,
+  jobId,
   jobTitle,
   onSubmit,
   loading,
@@ -53,6 +55,7 @@ export default function ApplicationModal({
 
         <div className="p-8">
           <JobApplicationForm
+            jobId={jobId}
             jobTitle={jobTitle}
             onSubmit={onSubmit}
             loading={loading}

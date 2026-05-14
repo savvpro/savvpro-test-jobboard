@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_
+from sqlalchemy.exc import IntegrityError
 from datetime import date, datetime
 from typing import List, Optional
 
@@ -264,11 +265,12 @@ def apply_to_job(
                 detail="Maximum number of applicants has been reached for this job"
             )
     
-    # Check for duplicate application (same email + same job)
+    # Check for duplicate application (same email + same job), case-insensitive
+    email_norm = application.email.strip().lower()
     existing_app = db.query(Application).filter(
         and_(
             Application.job_id == job_id,
-            Application.email == application.email,
+            func.lower(Application.email) == email_norm,
             Application.is_deleted == False
         )
     ).first()
@@ -276,14 +278,14 @@ def apply_to_job(
     if existing_app:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="You have already applied to this job. Duplicate applications are not allowed."
+            detail="You have already applied to this job with this email address. Duplicate applications are not allowed."
         )
     
     # Create new application
     db_application = Application(
         job_id=job_id,
         applicant_name=application.applicant_name,
-        email=application.email,
+        email=email_norm,
         years_experience=application.years_experience,
         cv_summary=application.cv_summary,
         linkedin_url=application.linkedin_url,
@@ -291,7 +293,14 @@ def apply_to_job(
     )
     
     db.add(db_application)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="You have already applied to this job with this email address. Duplicate applications are not allowed."
+        )
     db.refresh(db_application)
     
     # Create initial status history entry
@@ -358,7 +367,8 @@ def get_all_applications(
         query = query.filter(Application.status == status)
     
     if email is not None:
-        query = query.filter(Application.email == email)
+        email_norm = email.strip().lower()
+        query = query.filter(func.lower(Application.email) == email_norm)
 
     total_count = query.count()
     applications = query.offset((page - 1) * per_page).limit(per_page).all()

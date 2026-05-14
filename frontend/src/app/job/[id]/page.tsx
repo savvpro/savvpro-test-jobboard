@@ -244,6 +244,7 @@ export default function JobDetailsPage() {
 
       <ApplicationModal
         isOpen={showApplicationModal}
+        jobId={jobId}
         jobTitle={job.title}
         onSubmit={handleApply}
         loading={applyLoading}

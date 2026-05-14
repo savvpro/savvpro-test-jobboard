@@ -63,6 +63,11 @@ class ApplicationBase(BaseModel):
     cv_summary: str = Field(..., max_length=1000, example="Experienced software engineer with 5 years in Python.")
     linkedin_url: Optional[str] = Field(None, example="https://linkedin.com/in/johndoe")
 
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
+        return v.strip().lower()
+
     @field_validator('linkedin_url')
     def check_linkedin_url(cls, v):
         if v is not None and not (v.startswith("https://linkedin.com/") or v.startswith("https://www.linkedin.com/")):
