@@ -52,12 +52,12 @@ python -m pytest tests/test_api.py -v
 │   ├── database.py        # Database configuration
 │   └── requirements.txt   # Python dependencies
 ├── frontend/              # Next.js frontend
-│   ├── app/               # App Router pages
-│   │   ├── page.js        # Home — job listings grid
-│   │   ├── layout.js      # Root layout with navbar
+│   ├── app/               # App Router pages and global layout
+│   │   ├── page.js        # Home — job listings, filters, pagination
+│   │   ├── layout.js      # Root shell and top navigation
 │   │   ├── dashboard/     # Analytics dashboard
 │   │   ├── post-job/      # Create job form
-│   │   └── jobs/[id]/     # Job detail & applications
+│   │   └── jobs/[id]/     # Job detail & applications pipeline
 │   ├── components/        # Reusable components
 │   │   ├── JobCard.js
 │   │   ├── ApplicationRow.js

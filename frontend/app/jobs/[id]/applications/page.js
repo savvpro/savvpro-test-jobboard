@@ -57,24 +57,18 @@ export default function ApplicationsPage() {
 
   return (
     <div>
-      {/* Header */}
       <div style={{ padding: "1.5rem 0 0.5rem" }}>
-        <Link href={`/jobs/${jobId}`} style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>
-          ← Back to {job?.title || "Job"}
-        </Link>
+        <Link href={`/jobs/${jobId}`} className="text-link">← Back to {job?.title || "Job"}</Link>
       </div>
 
       <div className="page-header" style={{ paddingTop: "0.5rem" }}>
         <h1>Applications Pipeline</h1>
         <p>
-          {job?.title} — {job?.department}
-          {" "}
-          <StatusBadge status={job?.status} />
+          {job?.title} — {job?.department} <StatusBadge status={job?.status} />
         </p>
       </div>
 
-      {/* Status filter tabs */}
-      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
+      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1.25rem" }}>
         {["", "pending", "shortlisted", "offered", "rejected"].map((s) => (
           <button
             key={s}
@@ -86,21 +80,20 @@ export default function ApplicationsPage() {
         ))}
       </div>
 
-      {/* Applications table */}
       {applications.length === 0 ? (
         <div style={{ textAlign: "center", padding: "3rem 0", color: "var(--text-secondary)" }}>
           <p style={{ fontSize: "1.125rem" }}>No applications {statusFilter ? `with status "${statusFilter}"` : "yet"}</p>
         </div>
       ) : (
-        <div className="table-wrapper">
+        <div className="card table-wrapper">
           <table>
             <thead>
               <tr>
                 <th>Applicant</th>
-                <th>Email</th>
                 <th>Experience</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th>Applied</th>
+                <th className="text-right">Actions</th>
               </tr>
             </thead>
             <tbody>

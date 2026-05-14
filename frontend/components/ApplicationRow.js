@@ -44,11 +44,16 @@ export default function ApplicationRow({ application, onStatusUpdated }) {
   return (
     <>
       <tr>
-        <td style={{ fontWeight: 500 }}>{application.applicant_name}</td>
-        <td style={{ color: "var(--text-secondary)" }}>{application.email}</td>
+        <td>
+          <div style={{ fontWeight: 600 }}>{application.applicant_name}</div>
+          <div style={{ fontSize: "0.813rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>{application.email}</div>
+        </td>
         <td>{application.years_experience} yrs</td>
         <td><StatusBadge status={application.status} /></td>
-        <td>
+        <td style={{ color: "var(--text-secondary)" }}>
+          {new Date(application.created_at).toLocaleDateString()}
+        </td>
+        <td className="text-right">
           {allowedTransitions.length > 0 && (
             <button
               className="btn btn-secondary btn-sm"
@@ -61,7 +66,7 @@ export default function ApplicationRow({ application, onStatusUpdated }) {
       </tr>
       {showActions && (
         <tr>
-          <td colSpan={5} style={{ background: "rgba(15, 23, 42, 0.5)", padding: "1rem" }}>
+          <td colSpan={5} style={{ background: "var(--bg-card-hover)", padding: "1.5rem", borderBottom: "1px solid var(--border)" }}>
             <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-end", flexWrap: "wrap" }}>
               <div style={{ flex: 1, minWidth: "150px" }}>
                 <label style={{ fontSize: "0.75rem", color: "var(--text-secondary)", display: "block", marginBottom: "0.25rem" }}>

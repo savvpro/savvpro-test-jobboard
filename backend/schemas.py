@@ -169,6 +169,13 @@ class HistoryEntry(BaseModel):
 # Stats schema
 # ──────────────────────────────────────────
 
+class ActivityItem(BaseModel):
+    icon: str
+    title: str
+    description: str
+    time_str: str
+    color: str
+
 class StatsResponse(BaseModel):
     """Analytics / statistics response."""
 
@@ -178,6 +185,8 @@ class StatsResponse(BaseModel):
     total_applications: int
     avg_applications_per_job: float
     top_department: Optional[str]
+    application_trends: list[int] = []
+    recent_activity: list[ActivityItem] = []
 
 
 # Rebuild forward refs

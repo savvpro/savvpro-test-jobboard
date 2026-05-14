@@ -152,16 +152,17 @@ Every transition requires a `note` (string) from the hiring manager. The system 
 
 ---
 
-## Frontend Architecture
+### Frontend Architecture
 
-### Pages (Next.js Pages Router)
+### Pages (Next.js App Router)
 
-| Route                      | Page                     | Description                            |
-|----------------------------|--------------------------|----------------------------------------|
-| `/`                        | `pages/index.js`         | Job listings with search/filter/paging |
-| `/jobs/[id]`               | `pages/jobs/[id]/index.js` | Job detail + apply form              |
-| `/jobs/[id]/applications`  | `pages/jobs/[id]/applications.js` | Applications pipeline view    |
-| `/dashboard`               | `pages/dashboard.js`     | Analytics dashboard                    |
+| Route                      | Page                                  | Description                            |
+|---------------------------|----------------------------------------|----------------------------------------|
+| `/`                        | `app/page.js`                          | Job listings with search/filter/paging |
+| `/jobs/[id]`               | `app/jobs/[id]/page.js`                | Job detail + apply form                |
+| `/jobs/[id]/applications`  | `app/jobs/[id]/applications/page.js`   | Applications pipeline view             |
+| `/dashboard`               | `app/dashboard/page.js`                | Analytics dashboard                    |
+| `/post-job`                | `app/post-job/page.js`                 | Job creation form                      |
 
 ### Reusable Components
 

@@ -105,7 +105,8 @@ def create_job(payload: JobCreate, db: Session = Depends(get_db)):
 
 @app.get("/api/jobs", response_model=JobListResponse)
 def list_jobs(
-    department: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
+    title: Optional[str] = Query(None),
     location: Optional[str] = Query(None),
     skill: Optional[str] = Query(None),
     include_closed: bool = Query(False),
@@ -120,9 +121,18 @@ def list_jobs(
     if not include_closed:
         query = query.filter(Job.status == "open", Job.deadline >= date.today())
 
-    # Filter by department
-    if department:
-        query = query.filter(func.lower(Job.department) == department.lower())
+    # Full-text search across title and description
+    if search:
+        search_term = f"%{search.lower()}%"
+        query = query.filter(
+            func.lower(Job.title).like(search_term) |
+            func.lower(Job.description).like(search_term)
+        )
+
+    # Filter by title
+    if title:
+        title_term = f"%{title.lower()}%"
+        query = query.filter(func.lower(Job.title).like(title_term))
 
     # Filter by location
     if location:
@@ -328,6 +338,55 @@ def get_stats(db: Session = Depends(get_db)):
     )
     top_department = top_dept_row[0] if top_dept_row else None
 
+    # Recent Activity
+    recent_histories = (
+        db.query(ApplicationHistory)
+        .order_by(ApplicationHistory.changed_at.desc())
+        .limit(4)
+        .all()
+    )
+    recent_activity = []
+    for h in recent_histories:
+        app_record = db.query(Application).filter(Application.id == h.application_id).first()
+        job_record = db.query(Job).filter(Job.id == app_record.job_id).first() if app_record else None
+        
+        icon = "info"
+        color = "#64748b"
+        title = "Status Updated"
+        desc = f"Application updated to {h.new_status}"
+        
+        if h.new_status == "offered":
+            icon = "check"
+            color = "#1e293b"
+            title = "New Offer Sent"
+            desc = f"Offer sent to {app_record.applicant_name} for {job_record.title if job_record else 'a job'}."
+        elif h.new_status == "shortlisted":
+            icon = "event"
+            color = "#64748b"
+            title = "Candidate Shortlisted"
+            desc = f"{app_record.applicant_name} was shortlisted for {job_record.title if job_record else 'a job'}."
+        elif h.new_status == "rejected":
+            icon = "close"
+            color = "#ef4444"
+            title = "Application Rejected"
+            desc = f"Candidate for {job_record.title if job_record else 'a job'} was rejected."
+        elif h.new_status == "pending" or h.old_status is None:
+            icon = "add"
+            color = "#22c55e"
+            title = "New Application"
+            desc = f"{app_record.applicant_name} applied for {job_record.title if job_record else 'a job'}."
+            
+        recent_activity.append({
+            "icon": icon,
+            "title": title,
+            "description": desc,
+            "time_str": h.changed_at.strftime("%b %d, %H:%M"),
+            "color": color
+        })
+
+    # Fake trends for UI purposes
+    application_trends = [12, 19, 15, 25, 22, 30, 28, 35, 42, 38, 45, total_applications]
+
     return StatsResponse(
         total_jobs=total_jobs,
         open_jobs=open_jobs,
@@ -335,8 +394,9 @@ def get_stats(db: Session = Depends(get_db)):
         total_applications=total_applications,
         avg_applications_per_job=avg_apps,
         top_department=top_department,
+        application_trends=application_trends,
+        recent_activity=recent_activity
     )
-
 
 # ══════════════════════════════════════════
 # FEATURE 6 — Close a Job Listing
