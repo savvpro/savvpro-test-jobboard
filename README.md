@@ -1,83 +1,162 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# JobBoard Pro
 
-**Repository:** https://github.com/savvpro/savvpro-test-jobboard
-
----
-
-## Step 1: Fork the Repository
-
-1. Go to the repository: https://github.com/savvpro/savvpro-test-jobboard
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+A full-stack internal hiring platform built with FastAPI + Next.js.
+Hiring managers post roles, manage applicant pipelines, and track status transitions.
+Applicants browse open listings and submit applications — no login required.
 
 ---
 
-## Step 2: Clone Your Fork
+## Tech Stack
 
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
+| Layer      | Technology                          |
+|------------|-------------------------------------|
+| Backend    | Python 3.11 · FastAPI · SQLAlchemy  |
+| Database   | SQLite (auto-created on first run)  |
+| Frontend   | Next.js 14 (App Router) · TypeScript |
+| Styling    | Tailwind CSS · Custom design system |
+| Testing    | pytest · httpx · FastAPI TestClient |
+
+---
+
+## Prerequisites
+
+- Python 3.11 or higher
+- Node.js 18 or higher
+- npm 9+
+- Git
+
+---
+
+## Project Structure
+
+```
+jobboard-pro/
+├── backend/
+│   ├── main.py               # FastAPI app entry point
+│   ├── database.py           # SQLAlchemy engine + session
+│   ├── models.py             # ORM models
+│   ├── schemas.py            # Pydantic request/response schemas
+│   ├── routers/
+│   │   ├── jobs.py           # Job listing endpoints
+│   │   ├── applications.py   # Application endpoints
+│   │   └── stats.py          # Analytics endpoint
+│   └── requirements.txt
+├── frontend/
+│   ├── app/
+│   │   ├── page.tsx                          # / — Job listings + search + filter + pagination
+│   │   ├── dashboard/page.tsx               # /dashboard — Analytics
+│   │   ├── jobs/[id]/page.tsx               # /jobs/[id] — Job detail + apply form
+│   │   └── jobs/[id]/applications/page.tsx  # /jobs/[id]/applications — Pipeline view
+│   ├── components/
+│   │   ├── JobCard.tsx
+│   │   ├── ApplicationRow.tsx
+│   │   ├── StatusBadge.tsx
+│   │   ├── PaginationControls.tsx
+│   │   ├── ApplyForm.tsx
+│   │   ├── FilterBar.tsx
+│   │   └── DashboardStat.tsx
+│   ├── lib/
+│   │   └── api.ts            # All fetch wrappers to FastAPI
+│   ├── package.json
+│   └── tailwind.config.ts
+├── tests/
+│   ├── test_jobs.py
+│   ├── test_applications.py
+│   └── test_workflow.py
+├── README.md
+├── ARCHITECTURE.md
+├── AI_USAGE.md
+└── USER_GUIDE.md
+```
+
+---
+
+## Quick Start
+
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/savvpro-test-jobboard.git
+git clone https://github.com/malik-shaheer03/railway-construction-management-system.git
 cd savvpro-test-jobboard
+git checkout candidate-malik-shaheer03
 ```
 
----
-
-## Step 3: Read the Task
-
-Open and read **TASK.md** carefully before writing any code.
-
-- TASK.md URL: https://github.com/savvpro/savvpro-test-jobboard/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
+### 2. Start the Backend
 
 ```bash
-git checkout -b candidate-<your-github-username>
+cd backend
+pip install -r requirements.txt
+python -m uvicorn main:app --reload
 ```
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
-```
+Backend runs at: **http://localhost:8000**
+Interactive API docs: **http://localhost:8000/docs**
 
----
+The SQLite database (`jobboard.db`) is auto-created in `/backend/` on first run.
 
-## Step 5: Complete the Task
+### 3. Start the Frontend
 
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
+In a separate terminal:
 
 ```bash
-git add .
-git commit -m "feat: complete JobBoard assessment"
-git push origin candidate-<your-github-username>
+cd frontend
+npm install
+npm run dev
 ```
 
----
-
-## Step 7: Create a Pull Request
-
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-jobboard`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-jobboard` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-jobboard` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete JobBoard assessment`
-5. Submit the pull request.
-
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-jobboard`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+Frontend runs at: **http://localhost:3000**
 
 ---
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+## Environment Variables
+
+None required. SQLite is file-based and auto-initialised. 
+No `.env` file needed to run this project.
+
+---
+
+## Running Tests
+
+```bash
+# From the project root
+python -m pytest -v
+```
+
+All 25 tests use an isolated in-memory SQLite database — they will not affect your local `jobboard.db`.
+
+---
+
+## Available Pages
+
+| URL | Description |
+|-----|-------------|
+| `/` | Browse open job listings with search and filters |
+| `/jobs/[id]` | Job detail page with inline application form |
+| `/jobs/[id]/applications` | Hiring pipeline view with status management |
+| `/dashboard` | Live hiring analytics |
+
+---
+
+## API Overview
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/jobs` | Create a job listing |
+| GET | `/api/jobs` | Browse & search jobs (paginated) |
+| GET | `/api/jobs/{id}` | Get single job |
+| POST | `/api/jobs/{id}/apply` | Submit an application |
+| PATCH | `/api/jobs/{id}/close` | Close a job listing |
+| GET | `/api/jobs/{id}/applications` | List applications (filterable) |
+| PATCH | `/api/applications/{id}/status` | Update application status |
+| GET | `/api/stats` | Hiring analytics |
+
+Full interactive docs available at `http://localhost:8000/docs`.
+
+---
+
+## Assumptions & Constraints
+
+- No authentication system — manager actions are trust-based (by design, per spec)
+- SQLite only — no external database required
+- All AI usage documented in `AI_USAGE.md`
+- Architecture decisions documented in `ARCHITECTURE.md`
