@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ApplicationRow, FilterBar, JobCard, PaginationControls } from "@/components";
-import { fetchApplications, fetchJobs } from "@/lib/api";
+import { fetchApplicationStatusTransitions, fetchApplications, fetchJobs } from "@/lib/api";
 import type { ApplicationResponse } from "@/types/application";
 import type { JobResponse } from "@/types/job";
 
@@ -36,6 +36,9 @@ export default function Home() {
   const [appTotalPages, setAppTotalPages] = useState(1);
   const [appsLoading, setAppsLoading] = useState(false);
   const [appsError, setAppsError] = useState<string | null>(null);
+  const [statusTransitions, setStatusTransitions] = useState<Record<string, string[]>>({});
+  const [transitionsLoading, setTransitionsLoading] = useState(false);
+  const [transitionsError, setTransitionsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (activeTab !== "jobs") return;
@@ -98,6 +101,35 @@ export default function Home() {
       isMounted = false;
     };
   }, [activeTab, appPage]);
+
+  useEffect(() => {
+    if (activeTab !== "applications") return;
+
+    let isMounted = true;
+    setTransitionsLoading(true);
+    setTransitionsError(null);
+
+    fetchApplicationStatusTransitions()
+      .then((map) => {
+        if (isMounted) setStatusTransitions(map);
+      })
+      .catch((err) => {
+        if (isMounted) {
+          setTransitionsError(err instanceof Error ? err.message : "Failed to load status rules.");
+        }
+      })
+      .finally(() => {
+        if (isMounted) setTransitionsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeTab]);
+
+  function handleApplicationUpdated(updated: ApplicationResponse) {
+    setApplications((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
+  }
 
   function resetFilters() {
     setDepartmentFilter("");
@@ -236,11 +268,28 @@ export default function Home() {
                 No applications yet.
               </div>
             ) : (
-              <div className="grid gap-4">
-                {applications.map((app) => (
-                  <ApplicationRow key={app.id} application={app} />
-                ))}
-              </div>
+              <>
+                {transitionsError && !transitionsLoading && (
+                  <div
+                    role="alert"
+                    className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-100"
+                  >
+                    Could not load status workflow rules: {transitionsError}
+                  </div>
+                )}
+                <div className="grid gap-4">
+                  {applications.map((app) => (
+                    <ApplicationRow
+                      key={app.id}
+                      application={app}
+                      allowedNextStatuses={statusTransitions[app.status] ?? []}
+                      statusRulesLoading={transitionsLoading}
+                      statusRulesFailed={Boolean(transitionsError)}
+                      onApplicationUpdated={handleApplicationUpdated}
+                    />
+                  ))}
+                </div>
+              </>
             )}
           </section>
         )}

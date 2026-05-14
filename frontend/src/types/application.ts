@@ -23,3 +23,10 @@ export interface BrowseApplicationsResponse {
   per_page: number;
   results: ApplicationResponse[];
 }
+
+export type ApplicationWorkflowStatus = ApplicationResponse["status"];
+
+export interface ApplicationStatusUpdateRequest {
+  status: ApplicationWorkflowStatus;
+  note: string;
+}
