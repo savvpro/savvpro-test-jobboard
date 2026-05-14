@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { StatusBadge } from "@/components";
-import { fetchJob, deleteJob } from "@/lib/api";
+import { fetchJob, deleteJob, applyToJob } from "@/lib/api";
+import ApplicationModal from "@/components/ApplicationModal";
 import type { JobResponse } from "@/types/job";
+import type { ApplicationCreateRequest } from "@/types/application";
 
 function getStatus(isClosed: boolean, deadline: string) {
   const deadlineDate = new Date(deadline);
@@ -22,6 +24,8 @@ export default function JobDetailsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [showApplicationModal, setShowApplicationModal] = useState(false);
+  const [applyLoading, setApplyLoading] = useState(false);
 
   useEffect(() => {
     if (!jobId || isNaN(jobId)) {
@@ -72,6 +76,17 @@ export default function JobDetailsPage() {
       alert(err instanceof Error ? err.message : "Failed to delete job");
     } finally {
       setDeleteLoading(false);
+    }
+  };
+
+  const handleApply = async (applicationData: ApplicationCreateRequest) => {
+    setApplyLoading(true);
+    try {
+      await applyToJob(jobId, applicationData);
+      alert("Application submitted successfully!");
+      setShowApplicationModal(false);
+    } finally {
+      setApplyLoading(false);
     }
   };
 
@@ -128,7 +143,20 @@ export default function JobDetailsPage() {
                 </div>
                 <p className="text-lg text-zinc-600 dark:text-zinc-300">{job.department}</p>
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowApplicationModal(true)}
+                  disabled={status !== "Open"}
+                  title={
+                    status !== "Open"
+                      ? "This job is closed or the application deadline has passed."
+                      : undefined
+                  }
+                  className="inline-flex h-11 items-center justify-center rounded-full bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-slate-950 dark:hover:bg-zinc-200"
+                >
+                  Apply
+                </button>
                 <Link
                   href={`/job/${jobId}/edit`}
                   className="inline-flex h-11 items-center justify-center rounded-full border border-zinc-200 bg-white px-5 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-zinc-900"
@@ -213,6 +241,16 @@ export default function JobDetailsPage() {
           </div>
         </section>
       </main>
+
+      <ApplicationModal
+        isOpen={showApplicationModal}
+        jobTitle={job.title}
+        onSubmit={handleApply}
+        loading={applyLoading}
+        onClose={() => {
+          if (!applyLoading) setShowApplicationModal(false);
+        }}
+      />
     </div>
   );
 }

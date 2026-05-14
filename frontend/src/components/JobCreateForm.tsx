@@ -20,28 +20,29 @@ export default function JobCreateForm({ onSubmit, loading }: JobCreateFormProps)
   });
 
   const [skillsInput, setSkillsInput] = useState("");
+  const [clientError, setClientError] = useState<string | null>(null);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setClientError(null);
 
-    // Validate required fields
     if (!formData.title.trim() || !formData.department.trim() || !formData.description.trim()) {
-      alert("Please fill in all required fields");
+      setClientError("Please fill in all required fields (title, department, and description).");
       return;
     }
 
     if (formData.salary_min >= formData.salary_max) {
-      alert("Minimum salary must be less than maximum salary");
+      setClientError("Minimum salary must be strictly less than maximum salary.");
       return;
     }
 
     if (formData.required_skills.length === 0) {
-      alert("Please add at least one required skill");
+      setClientError("Please add at least one required skill.");
       return;
     }
 
     if (!formData.deadline) {
-      alert("Please select a deadline");
+      setClientError("Please select an application deadline.");
       return;
     }
 
@@ -49,10 +50,12 @@ export default function JobCreateForm({ onSubmit, loading }: JobCreateFormProps)
   };
 
   const handleChange = (field: keyof JobCreateRequest, value: string | number | null) => {
+    setClientError(null);
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const addSkill = () => {
+    setClientError(null);
     const skill = skillsInput.trim();
     if (skill && !formData.required_skills.includes(skill)) {
       setFormData((prev) => ({
@@ -64,6 +67,7 @@ export default function JobCreateForm({ onSubmit, loading }: JobCreateFormProps)
   };
 
   const removeSkill = (skillToRemove: string) => {
+    setClientError(null);
     setFormData((prev) => ({
       ...prev,
       required_skills: prev.required_skills.filter((skill) => skill !== skillToRemove),
@@ -79,6 +83,15 @@ export default function JobCreateForm({ onSubmit, loading }: JobCreateFormProps)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {clientError && (
+        <div
+          role="alert"
+          className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/80 dark:text-rose-100"
+        >
+          {clientError}
+        </div>
+      )}
+
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="space-y-2">
           <label htmlFor="title" className="block text-sm font-semibold text-zinc-900 dark:text-zinc-100">

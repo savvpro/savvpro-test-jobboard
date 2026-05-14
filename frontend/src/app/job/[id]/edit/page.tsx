@@ -16,6 +16,7 @@ export default function JobEditPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [updateLoading, setUpdateLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!jobId || isNaN(jobId)) {
@@ -50,12 +51,13 @@ export default function JobEditPage() {
 
   const handleUpdate = async (jobData: JobUpdateRequest) => {
     setUpdateLoading(true);
+    setSubmitError(null);
 
     try {
       await updateJob(jobId, jobData);
       router.push(`/job/${jobId}`);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to update job");
+      setSubmitError(err instanceof Error ? err.message : "Failed to update job.");
     } finally {
       setUpdateLoading(false);
     }
@@ -112,7 +114,7 @@ export default function JobEditPage() {
         </div>
 
         <section className="rounded-3xl bg-white/90 p-8 shadow-sm shadow-zinc-200/50 dark:bg-zinc-950/80 dark:shadow-black/20">
-          <JobEditForm job={job} onSubmit={handleUpdate} loading={updateLoading} />
+          <JobEditForm job={job} onSubmit={handleUpdate} loading={updateLoading} serverError={submitError} />
         </section>
       </main>
     </div>
