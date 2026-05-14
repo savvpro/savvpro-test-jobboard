@@ -1,83 +1,55 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# JobBoard Pro
 
-**Repository:** https://github.com/savvpro/savvpro-test-jobboard
+JobBoard Pro is a premium job listing and application management platform built with FastAPI and Next.js.
 
----
+## Features
+- **Job Management**: Create, list, search, and close job listings.
+- **Advanced Filtering**: Filter by department, location, and required skills.
+- **Smart Application Flow**: Integrated validation for deadlines, max applicants, and duplicate applications.
+- **Status Workflow**: Structured hiring pipeline (`pending` -> `shortlisted` -> `offered` / `rejected`) with mandatory history notes.
+- **Analytics Dashboard**: Live stats on job performance and department activity.
 
-## Step 1: Fork the Repository
+## Tech Stack
+- **Backend**: FastAPI, SQLite, SQLAlchemy, Pydantic.
+- **Frontend**: Next.js 14, Tailwind CSS, TypeScript, Lucide Icons.
 
-1. Go to the repository: https://github.com/savvpro/savvpro-test-jobboard
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+## Setup Instructions
 
----
+### Prerequisites
+- Python 3.10+
+- Node.js 18+
 
-## Step 2: Clone Your Fork
+### Backend Setup
+1. Navigate to `/backend`:
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   ```
+2. Start the FastAPI server:
+   ```bash
+   uvicorn main:app --reload
+   ```
+   The backend will be available at `http://localhost:8000`.
 
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
+### Frontend Setup
+1. Navigate to `/frontend`:
+   ```bash
+   cd frontend
+   npm install
+   ```
+2. Start the Next.js dev server:
+   ```bash
+   npm run dev
+   ```
+   The frontend will be available at `http://localhost:3000`.
 
+### Running Tests
+From the root directory:
 ```bash
-git clone https://github.com/your-username/savvpro-test-jobboard.git
-cd savvpro-test-jobboard
+pytest tests/
 ```
 
----
-
-## Step 3: Read the Task
-
-Open and read **TASK.md** carefully before writing any code.
-
-- TASK.md URL: https://github.com/savvpro/savvpro-test-jobboard/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
-
-```bash
-git checkout -b candidate-<your-github-username>
-```
-
-**Example:**
-```bash
-git checkout -b candidate-johndoe
-```
-
----
-
-## Step 5: Complete the Task
-
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
-
-```bash
-git add .
-git commit -m "feat: complete JobBoard assessment"
-git push origin candidate-<your-github-username>
-```
-
----
-
-## Step 7: Create a Pull Request
-
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-jobboard`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-jobboard` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-jobboard` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete JobBoard assessment`
-5. Submit the pull request.
-
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-jobboard`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
-
----
-
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+## Documentation
+- [Architecture](ARCHITECTURE.md) - Data models and ambiguity resolutions.
+- [AI Usage](AI_USAGE.md) - Prompts and error logs.
+- [User Guide](USER_GUIDE.md) - Usage instructions and API examples.
