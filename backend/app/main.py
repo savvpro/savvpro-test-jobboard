@@ -8,7 +8,7 @@ from typing import List, Optional
 from .core.database import SessionLocal, engine
 from .models.models import Base, Job, Application, ApplicationStatusHistory
 from .schemas.schemas import (
-    JobCreate, JobResponse, ApplicationCreate, ApplicationResponse, 
+    JobCreate, JobUpdate, JobResponse, ApplicationCreate, ApplicationResponse, 
     ApplicationStatusUpdate, ApplicationStatusHistoryResponse, StatsResponse
 )
 from .emuns.enums import ApplicationStatusEnum, LocationEnum
@@ -140,6 +140,66 @@ def get_job(job_id: int, db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Job not found"
         )
+    
+    return job
+
+
+@app.delete("/api/jobs/{job_id}")
+def delete_job(job_id: int, db: Session = Depends(get_db)):
+    """Soft delete a job listing"""
+    
+    # Check if job exists
+    job = db.query(Job).filter(
+        and_(Job.id == job_id, Job.is_deleted == False)
+    ).first()
+    
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job not found"
+        )
+    
+    # Soft delete the job
+    job.is_deleted = True
+    job.updated_at = datetime.utcnow()
+    
+    db.commit()
+    
+    return {"message": "Job deleted successfully"}
+
+
+@app.put("/api/jobs/{job_id}", response_model=JobResponse)
+def update_job(job_id: int, job_update: JobUpdate, db: Session = Depends(get_db)):
+    """Update a job listing"""
+    
+    # Check if job exists
+    job = db.query(Job).filter(
+        and_(Job.id == job_id, Job.is_deleted == False)
+    ).first()
+    
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Job not found"
+        )
+    
+    # Validate salary range if both values are provided
+    if job_update.salary_min is not None and job_update.salary_max is not None:
+        if job_update.salary_min >= job_update.salary_max:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="salary_min must be strictly less than salary_max"
+            )
+    
+    # Update only provided fields
+    update_data = job_update.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(job, field, value)
+    
+    job.updated_at = datetime.utcnow()
+    
+    db.commit()
+    db.refresh(job)
     
     return job
 

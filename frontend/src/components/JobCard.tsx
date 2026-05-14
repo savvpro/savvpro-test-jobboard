@@ -1,3 +1,4 @@
+import Link from "next/link";
 import StatusBadge from "./StatusBadge";
 
 export interface JobCardProps {
@@ -10,7 +11,7 @@ export interface JobCardProps {
   deadline: string;
   maxApplicants?: number | null;
   requiredSkills?: string[];
-  onViewDetails?: () => void;
+  jobId: number;
 }
 
 export default function JobCard({
@@ -23,7 +24,7 @@ export default function JobCard({
   deadline,
   maxApplicants,
   requiredSkills,
-  onViewDetails,
+  jobId,
 }: JobCardProps) {
   const deadlineDate = new Date(deadline).toLocaleDateString(undefined, {
     year: "numeric",
@@ -51,15 +52,12 @@ export default function JobCard({
           </div>
         </div>
 
-        {onViewDetails ? (
-          <button
-            type="button"
-            onClick={onViewDetails}
-            className="inline-flex h-11 items-center justify-center rounded-full bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-zinc-200"
-          >
-            View details
-          </button>
-        ) : null}
+        <Link
+          href={`/job/${jobId}`}
+          className="inline-flex h-11 items-center justify-center rounded-full bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-zinc-200"
+        >
+          View details
+        </Link>
       </div>
 
       <p className="mt-5 text-sm leading-6 text-zinc-600 dark:text-zinc-300">{description}</p>

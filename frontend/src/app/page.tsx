@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { FilterBar, JobCard, PaginationControls } from "@/components";
 import { fetchJobs } from "@/lib/api";
 import type { JobResponse } from "@/types/job";
@@ -65,15 +66,25 @@ export default function Home() {
       <main className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 lg:px-8">
         <section className="rounded-3xl bg-white/90 p-8 shadow-sm shadow-zinc-200/50 dark:bg-zinc-950/80 dark:shadow-black/20">
           <div className="flex flex-col gap-3">
-            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-slate-500 dark:text-slate-400">
-              Live API job board
-            </p>
-            <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
-              Browse jobs from the backend
-            </h1>
-            <p className="max-w-3xl text-sm leading-7 text-zinc-600 dark:text-zinc-300">
-              This page connects the Next.js frontend to the FastAPI backend using the Fetch API. Jobs are loaded from `/api/jobs` and displayed with reusable Tailwind components.
-            </p>
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <p className="text-sm font-semibold uppercase tracking-[0.32em] text-slate-500 dark:text-slate-400">
+                  Live API job board
+                </p>
+                <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
+                  Browse jobs from the backend
+                </h1>
+                <p className="max-w-3xl text-sm leading-7 text-zinc-600 dark:text-zinc-300">
+                  This page connects the Next.js frontend to the FastAPI backend using the Fetch API. Jobs are loaded from `/api/jobs` and displayed with reusable Tailwind components.
+                </p>
+              </div>
+              <Link
+                href="/job/create"
+                className="inline-flex h-11 items-center justify-center rounded-full bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-zinc-200"
+              >
+                Create Job
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -111,6 +122,7 @@ export default function Home() {
               {jobs.map((job) => (
                 <JobCard
                   key={job.id}
+                  jobId={job.id}
                   title={job.title}
                   department={job.department}
                   location={job.location}
@@ -120,7 +132,6 @@ export default function Home() {
                   deadline={job.deadline}
                   maxApplicants={job.max_applicants}
                   requiredSkills={job.required_skills}
-                  onViewDetails={() => window.alert(`Job ID ${job.id} selected`)}
                 />
               ))}
             </div>

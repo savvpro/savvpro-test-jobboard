@@ -27,6 +27,24 @@ class JobBase(BaseModel):
 class JobCreate(JobBase):
     pass
 
+class JobUpdate(BaseModel):
+    title: Optional[str] = Field(None, example="Software Engineer")
+    department: Optional[str] = Field(None, example="Engineering")
+    description: Optional[str] = Field(None, example="We are looking for a backend engineer.")
+    location: Optional[LocationEnum] = None
+    salary_min: Optional[int] = Field(None, example=80000)
+    salary_max: Optional[int] = Field(None, example=120000)
+    required_skills: Optional[List[str]] = Field(None, min_length=1, example=["Python", "FastAPI"])
+    max_applicants: Optional[int] = Field(None, example=50)
+    deadline: Optional[date] = None
+    is_closed: Optional[bool] = None
+
+    @field_validator('salary_max')
+    def check_salary(cls, v, info):
+        if v is not None and 'salary_min' in info.data and info.data['salary_min'] is not None and v <= info.data['salary_min']:
+            raise ValueError('salary_max must be strictly greater than salary_min')
+        return v
+
 class JobResponse(JobBase):
     id: int
     is_closed: bool
