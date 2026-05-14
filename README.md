@@ -1,83 +1,105 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# JobBoard Pro
 
-**Repository:** https://github.com/savvpro/savvpro-test-jobboard
+A full-stack job listing and application management platform built to handle the complete hiring lifecycle—from job posting to candidate pipeline management.
 
----
+## 🚀 Tech Stack
+* **Backend:** Python 3.14, FastAPI, SQLite, SQLAlchemy (ORM), Pydantic, Pytest
+* **Frontend:** Next.js 15 (App Router), React, Tailwind CSS, TypeScript
+* **Tooling:** `uv` (Python package manager), `npm`
 
-## Step 1: Fork the Repository
-
-1. Go to the repository: https://github.com/savvpro/savvpro-test-jobboard
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
-
----
-
-## Step 2: Clone Your Fork
-
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
-
-```bash
-git clone https://github.com/your-username/savvpro-test-jobboard.git
-cd savvpro-test-jobboard
-```
+## ✨ Core Features
+* **Job Management:** Create, view, and manually close job listings.
+* **Smart Search:** Browse open roles with simultaneous filtering by department, location, and skills, complete with pagination.
+* **Applicant Tracking:** Submit applications with strict data validation, duplicate-email prevention, and maximum applicant caps.
+* **Strict Hiring Workflow:** One-way status progression (Pending ➡️ Shortlisted ➡️ Offered) with mandatory manager notes and immutable history logging.
+* **Real-Time Analytics:** A dynamic dashboard tracking total jobs, application averages, and top-performing departments.
 
 ---
 
-## Step 3: Read the Task
+## 🛠️ Developer Setup & Installation
 
-Open and read **TASK.md** carefully before writing any code.
+### Prerequisites
+- Python 3.14 (managed via `uv`)
+- Node.js (v18+)
 
-- TASK.md URL: https://github.com/savvpro/savvpro-test-jobboard/blob/main/TASK.md
+### Backend Setup
+1. Navigate to the backend directory: 
+   ```bash
+   `cd backend`
+Initialize the environment and install dependencies:
 
----
+Bash
+`uv init --python 3.14`
+`uv pip install -r requirements.txt`
+Activate the virtual environment (if not activated automatically):
 
-## Step 4: Create a New Branch
+Windows: `.venv\Scripts\activate`
 
-Branch pattern: `candidate-<your-github-username>`
+Mac/Linux: `source .venv/bin/activate`
 
-```bash
-git checkout -b candidate-<your-github-username>
-```
+Run the development server:
 
-**Example:**
-```bash
-git checkout -b candidate-johndoe
-```
+Bash
+`uv run uvicorn app.main:app --reload`
+The API will be available at `http://localhost:8000.` API Documentation is available at `http://localhost:8000/docs.`
 
----
+### Frontend Setup
+Open a new terminal and ensure you are in the root folder (not in the backend venv).
 
-## Step 5: Complete the Task
+Navigate to the frontend directory:
 
-Build the full application on your branch.
+Bash
+`cd frontend`
+Install dependencies:
 
----
+Bash
+`npm install`
+Run the development server:
 
-## Step 6: Push Your Branch
+Bash
+`npm run dev`
+The UI will be available at `http://localhost:3000.`
 
-```bash
-git add .
-git commit -m "feat: complete JobBoard assessment"
-git push origin candidate-<your-github-username>
-```
+🧪 `Testing`
+The backend includes a comprehensive pytest suite covering validations, database operations, and workflow logic.
 
----
+Navigate to the backend directory: `cd backend`
 
-## Step 7: Create a Pull Request
+Run the entire test suite:
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-jobboard`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-jobboard` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-jobboard` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete JobBoard assessment`
-5. Submit the pull request.
+Bash
+`uv run pytest ../tests/ -v`
+Run a specific test file:
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-jobboard`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+Bash
+`uv run pytest ../tests/test_jobs.py -v`
 
----
+📚 Documentation Directory
+For more details on the system, please refer to the following documents:
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+`USER_GUIDE.md:` Instructions on how to use the web interface.
+
+`ARCHITECTURE.md:` System design, data models, and business logic decisions.
+
+`AI_USAGE.md:` Documentation of AI tools used during development and debugging.
+
+## 📸 Screenshots
+
+### Platform Analytics Dashboard
+![Dashboard View](./assets/Dashboard.png)
+
+### Open Roles & Filtering
+![Job Listings View 1](./assets/Listing1.png)
+![Job Listings View 2](./assets/Listing2.png)
+
+### Job Posting Form
+![Post a Job](./assets/Job-Post.png)
+
+### Job Application Form
+![Apply for a Job](./assets/Apply-Job.png)
+
+### Applicant Pipeline Management
+![Manage Applications](./assets/Applications-manage.png)
+
+### Backend API Documentation
+![FastAPI Swagger Docs](./assets/backend-docs.png)
