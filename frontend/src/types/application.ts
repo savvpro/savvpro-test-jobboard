@@ -16,3 +16,10 @@ export interface ApplicationResponse {
   linkedin_url: string | null;
   status: "pending" | "shortlisted" | "offered" | "rejected";
 }
+
+export interface BrowseApplicationsResponse {
+  total_count: number;
+  page: number;
+  per_page: number;
+  results: ApplicationResponse[];
+}
