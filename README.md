@@ -1,83 +1,109 @@
-# Step-by-Step Guide: How to Fork, Clone, and Submit Your Assessment
+# JobBoard Pro
 
-**Repository:** https://github.com/savvpro/savvpro-test-jobboard
-
----
-
-## Step 1: Fork the Repository
-
-1. Go to the repository: https://github.com/savvpro/savvpro-test-jobboard
-2. Click the **Fork** button in the top-right corner.
-3. This will create a copy of the repository in your GitHub account.
+A full-stack job listing and application management platform built with **FastAPI** (Python) and **Next.js** (TypeScript).
 
 ---
 
-## Step 2: Clone Your Fork
+## Tech Stack
 
-1. Open your forked repository in your GitHub account.
-2. Click the green **Code** button and copy the URL.
-3. Run the following commands:
+| Layer    | Technology                  |
+|----------|-----------------------------|
+| Backend  | FastAPI · SQLAlchemy · SQLite |
+| Frontend | Next.js 15 · TypeScript · Vanilla CSS |
+| Tests    | pytest · httpx · TestClient |
+
+---
+
+## Prerequisites
+
+- Python 3.10+
+- Node.js 18+
+- npm
+
+---
+
+## Backend Setup
 
 ```bash
-git clone https://github.com/your-username/savvpro-test-jobboard.git
-cd savvpro-test-jobboard
+# From project root
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -r backend/requirements.txt
+
+# Start the API server
+uvicorn backend.main:app --reload --port 8000
+```
+
+API is live at: http://localhost:8000  
+Interactive docs: http://localhost:8000/docs
+
+---
+
+## Frontend Setup
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+App is live at: http://localhost:3000
+
+---
+
+## Running Tests
+
+```bash
+# From project root (with venv activated)
+pytest tests/ -v
 ```
 
 ---
 
-## Step 3: Read the Task
+## Project Structure
 
-Open and read **TASK.md** carefully before writing any code.
-
-- TASK.md URL: https://github.com/savvpro/savvpro-test-jobboard/blob/main/TASK.md
-
----
-
-## Step 4: Create a New Branch
-
-Branch pattern: `candidate-<your-github-username>`
-
-```bash
-git checkout -b candidate-<your-github-username>
 ```
-
-**Example:**
-```bash
-git checkout -b candidate-johndoe
-```
-
----
-
-## Step 5: Complete the Task
-
-Build the full application on your branch.
-
----
-
-## Step 6: Push Your Branch
-
-```bash
-git add .
-git commit -m "feat: complete JobBoard assessment"
-git push origin candidate-<your-github-username>
+savvpro-test-jobboard/
+├── backend/
+│   ├── main.py          ← FastAPI app entry point
+│   ├── database.py      ← SQLAlchemy engine & session
+│   ├── models.py        ← Job, Application, StatusHistory ORM models
+│   ├── schemas.py       ← Pydantic request/response schemas
+│   └── routers/
+│       ├── jobs.py         ← POST /api/jobs, GET /api/jobs, etc.
+│       ├── applications.py ← POST /apply, PATCH /status, etc.
+│       └── stats.py        ← GET /api/stats
+├── frontend/
+│   ├── app/
+│   │   ├── page.tsx                         ← Job listings
+│   │   ├── dashboard/page.tsx               ← Analytics
+│   │   └── jobs/[id]/
+│   │       ├── page.tsx                     ← Job detail + apply form
+│   │       └── applications/page.tsx        ← Pipeline view
+│   ├── components/
+│   │   ├── JobCard.tsx
+│   │   ├── ApplicationRow.tsx
+│   │   ├── StatusBadge.tsx
+│   │   └── PaginationControls.tsx
+│   └── lib/api.ts        ← Typed API client
+└── tests/
+    └── test_main.py      ← 10 pytest tests
 ```
 
 ---
 
-## Step 7: Create a Pull Request
+## Environment Variables
 
-1. Go to your **forked** repository on GitHub (`https://github.com/your-username/savvpro-test-jobboard`).
-2. Click **Compare & pull request** (GitHub will show this banner after you push your branch).
-3. Ensure the following settings in the PR form:
-   - **Base repository:** `savvpro/savvpro-test-jobboard` ← the original repo
-   - **Base branch:** `main`
-   - **Head repository:** `your-username/savvpro-test-jobboard` ← your fork
-   - **Compare branch:** `candidate-<your-github-username>`
-4. Use the title: `feat: complete JobBoard assessment`
-5. Submit the pull request.
+Create a `.env` file in `frontend/` if you need to override the API URL:
 
-> 💡 **Tip:** If you don't see the banner, go to the original repo (`savvpro/savvpro-test-jobboard`), click the **Pull requests** tab, then click **New pull request** → **compare across forks**.
+```
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
 
 ---
 
-> ⚠️ **Important:** No submissions will be accepted after the deadline.
+## Assumptions
+
+- No authentication — manager actions are trust-based as per spec
+- SQLite database file (`jobboard.db`) is created on first run in `/backend/`
+- The frontend connects directly to FastAPI via fetch (no Next.js API proxy)
