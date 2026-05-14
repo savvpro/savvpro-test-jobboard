@@ -21,9 +21,17 @@ export interface Job extends JobCreateInput {
 
 export interface JobListResponse {
   total_count: number;
-  page: int;
-  per_page: int;
+  page: number;
+  per_page: number;
   results: Job[];
+}
+
+export interface StatusHistory {
+  id: number;
+  from_status: string | null;
+  to_status: string;
+  note: string;
+  changed_at: string;
 }
 
 export interface ApplicationInput {
@@ -39,6 +47,7 @@ export interface Application extends ApplicationInput {
   job_id: number;
   status: StatusEnum;
   created_at: string;
+  status_history: StatusHistory[];
 }
 
 export interface StatusUpdateInput {

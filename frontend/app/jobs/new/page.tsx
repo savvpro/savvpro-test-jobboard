@@ -65,9 +65,10 @@ export default function NewJobPage() {
 
       const res = await createJob(payload);
       router.push(`/jobs/${res.id}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || "Failed to create job listing. Please check your inputs.");
+      const message = err instanceof Error ? err.message : "Failed to create job listing. Please check your inputs.";
+      setError(message);
     } finally {
       setLoading(false);
     }

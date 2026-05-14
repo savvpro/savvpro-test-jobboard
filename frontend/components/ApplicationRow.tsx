@@ -41,7 +41,7 @@ export default function ApplicationRow({ application, onStatusUpdate }: Applicat
       setShowUpdateForm(false);
       setSelectedStatus("");
       setNote("");
-    } catch (e) {
+    } catch {
       alert("Failed to update status.");
     } finally {
       setUpdating(false);
@@ -72,7 +72,7 @@ export default function ApplicationRow({ application, onStatusUpdate }: Applicat
 
         <div className="flex-1 md:max-w-md hidden sm:block">
           <div className="text-[14px] text-textSecondary italic truncate">
-            "{truncatedCv}"
+            &quot;{truncatedCv}&quot;
           </div>
         </div>
 
@@ -121,6 +121,40 @@ export default function ApplicationRow({ application, onStatusUpdate }: Applicat
                   >
                     {application.linkedin_url}
                   </a>
+                </div>
+              )}
+
+              {application.status_history && application.status_history.length > 0 && (
+                <div>
+                  <h4 className="text-[13px] font-semibold text-textPrimary uppercase tracking-wider mb-4">Status History</h4>
+                  <div className="space-y-4">
+                    {application.status_history.map((h, i) => (
+                      <div key={h.id} className="relative pl-6 pb-2 last:pb-0">
+                        {/* Vertical Line */}
+                        {i < application.status_history.length - 1 && (
+                          <div className="absolute left-[3px] top-[8px] bottom-0 w-[1px] bg-border" />
+                        )}
+                        {/* Dot */}
+                        <div className="absolute left-0 top-[6px] w-[7px] h-[7px] rounded-full bg-border" />
+                        
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-[13px] font-bold text-textPrimary capitalize">
+                              {h.to_status}
+                            </span>
+                            <span className="text-[12px] text-textTertiary">
+                              {new Date(h.changed_at).toLocaleString('en-US', { 
+                                month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+                              })}
+                            </span>
+                          </div>
+                          <p className="text-[14px] text-textSecondary italic">
+                            &quot;{h.note}&quot;
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

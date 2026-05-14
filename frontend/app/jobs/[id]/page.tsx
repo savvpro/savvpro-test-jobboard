@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getJob, Job } from "@/lib/api";
 import ApplyForm from "@/components/ApplyForm";
@@ -9,7 +9,6 @@ import { ArrowLeft, Clock } from "lucide-react";
 
 export default function JobDetail() {
   const params = useParams();
-  const router = useRouter();
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -18,7 +17,7 @@ export default function JobDetail() {
     try {
       const res = await getJob(Number(params.id));
       setJob(res);
-    } catch (e) {
+    } catch {
       setError(true);
     } finally {
       setLoading(false);

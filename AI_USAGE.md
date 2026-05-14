@@ -13,38 +13,25 @@
 **Verbatim prompt sent:**
 > understand and read the 00_PROJECT_CONTEXT.md
 
-**What it produced:**  
-Analyzed the master project context including tech stack, data models, API endpoints, status transitions, and design system requirements.
-
-**Edits I made:**  
-No direct edits were made to the context file, but this information informed all subsequent implementation steps.
-
----
-
 ### Prompt 2 — Test Suite Analysis and Verification
 **Verbatim prompt sent:**
 > yes i was working on the tests, 04_PROMPT_TESTS.md, is it complete or not
 
-**What it produced:**  
-Verification of the existing test implementation (25 tests). Identified multiple failing tests due to database connectivity and schema mismatches.
+### Prompt 3 — Bulk Bug Fixing
+**Verbatim prompt sent:**
+> fix all of them
 
-**Edits I made:**  
-Specifically identified and fixed:
-1. `tests/conftest.py` - Switched to `StaticPool` to fix in-memory SQLite table visibility.
-2. `backend/schemas.py` - Added missing `status_history` to `ApplicationResponse`.
-3. `backend/models.py` - Configured `lazy="joined"` for `status_history` to ensure correct JSON nesting.
-
----
-
-### Prompt 3 — Final Documentation Generation
+### Prompt 4 — Step-wise Documentation Generation
 **Verbatim prompt sent:**
 > 05-PROMPT_DOCS_AND_GIT.md now execute this
 
-**What it produced:**  
-Generated `README.md`, `ARCHITECTURE.md`, `AI_USAGE.md`, and `USER_GUIDE.md`.
+### Prompt 5 — Status Check & Error Diagnosis
+**Verbatim prompt sent:**
+> bro what are you doing rn, like in which thing you are stucked
 
-**Edits I made:**  
-Verified all paths and curl examples against the actual implementation. Updated backend start commands to use `python -m uvicorn` for better reliability in the current environment.
+### Prompt 6 — Final Submission Alignment
+**Verbatim prompt sent:**
+> ok do it, also read the TASK.md where it says something like 5 times commit with proper message dont know what was it.
 
 ---
 

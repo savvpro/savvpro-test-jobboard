@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
-import { getJob, Job, getApplications, Application, closeJob, StatusEnum, StatusUpdateInput } from "@/lib/api";
-import { ArrowLeft, CheckCircle2, TrendingUp, XCircle, Clock, AlertTriangle } from "lucide-react";
+import { getJob, Job, getApplications, Application, closeJob, StatusEnum } from "@/lib/api";
+import { ArrowLeft, AlertTriangle } from "lucide-react";
 import ApplicationRow from "@/components/ApplicationRow";
 
 export default function Applications() {
   const params = useParams();
-  const router = useRouter();
   
   const [job, setJob] = useState<Job | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
@@ -30,7 +29,7 @@ export default function Applications() {
         const apps = await getApplications(Number(params.id), activeTab === "all" ? undefined : activeTab);
         setApplications(apps);
         setError(false);
-      } catch (err) {
+      } catch {
         setError(true);
       } finally {
         setLoading(false);
@@ -73,7 +72,7 @@ export default function Applications() {
         const apps = await getApplications(Number(params.id), activeTab === "all" ? undefined : activeTab);
         setApplications(apps);
       }
-    } catch (e) {
+    } catch {
       alert("Failed to close job");
     } finally {
       setClosing(false);
@@ -204,7 +203,7 @@ export default function Applications() {
           <div className="text-center py-20 bg-surface rounded-2xl border border-border border-dashed">
             <h3 className="text-[17px] font-semibold text-textPrimary mb-2">No applications found</h3>
             <p className="text-[15px] text-textSecondary">
-              There are no applications matching the "{tabs.find(t => t.id === activeTab)?.label}" filter.
+              There are no applications matching the &quot;{tabs.find(t => t.id === activeTab)?.label}&quot; filter.
             </p>
           </div>
         )}

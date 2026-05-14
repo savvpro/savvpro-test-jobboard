@@ -45,13 +45,13 @@ export default function ApplyForm({ jobId, onSuccess }: ApplyFormProps) {
       });
       setSubmitted(true);
       setTimeout(onSuccess, 500); // Trigger parent callback after brief delay
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
-      } else if (err?.detail && Array.isArray(err.detail)) {
-        // Handle validation errors
+      } else if (err && typeof err === 'object' && 'detail' in err && Array.isArray((err as { detail: unknown }).detail)) {
+        // Handle validation errors from backend
         const errors: Record<string, string> = {};
-        err.detail.forEach((e: any) => {
+        ((err as { detail: { field: string; message: string }[] }).detail).forEach((e) => {
           errors[e.field] = e.message;
         });
         setFieldErrors(errors);
@@ -71,7 +71,7 @@ export default function ApplyForm({ jobId, onSuccess }: ApplyFormProps) {
           Application Submitted!
         </h3>
         <p className="text-[15px] text-textSecondary max-w-[300px] mx-auto">
-          Thanks, {formData.name.split(' ')[0]}. We'll review your application and be in touch soon.
+          Thanks, {formData.name.split(' ')[0]}. We&apos;ll review your application and be in touch soon.
         </p>
       </div>
     );
